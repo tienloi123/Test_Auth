@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from fastapi import HTTPException, status
+
 from jose import jwt
 from passlib.context import CryptContext
 from app.schemas.token import Token, TokenData
@@ -35,8 +37,11 @@ class AuthService:
     # Decode JWT token
     @staticmethod
     def decode_access_token(token: str) -> TokenData:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return TokenData(sub=payload.get("sub"))
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            return TokenData(sub=payload.get("sub"))
+        except:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token error type")
 
 
 auth_service = AuthService()
